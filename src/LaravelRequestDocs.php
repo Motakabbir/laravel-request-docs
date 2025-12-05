@@ -189,6 +189,9 @@ class LaravelRequestDocs
             /** @var string[] $middlewares */
             $middlewares = $route->middleware();
 
+            // Detect if authentication is required
+            $requiresAuth = $this->detectAuthMiddleware($middlewares);
+
             $doc = new Doc(
                 $route->uri,
                 $routeMethods,
@@ -201,6 +204,8 @@ class LaravelRequestDocs
                 [],
                 '',
             );
+
+            $doc->setRequiresAuth($requiresAuth);
 
             $docs->push($doc);
         }
@@ -568,5 +573,32 @@ class LaravelRequestDocs
         }
 
         return $docComment;
+    }
+
+    /**
+     * Detect if route requires authentication based on middleware
+     *
+     * @param  string[]  $middlewares
+     */
+    private function detectAuthMiddleware(array $middlewares): bool
+    {
+        $authPatterns = config('request-docs.auth_middleware_patterns', [
+            'auth',
+            'auth:api',
+            'auth:sanctum',
+            'auth:web',
+            'sanctum',
+            'passport',
+        ]);
+
+        foreach ($middlewares as $middleware) {
+            foreach ($authPatterns as $pattern) {
+                if (str_contains($middleware, $pattern)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

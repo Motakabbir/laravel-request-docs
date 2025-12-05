@@ -8,6 +8,7 @@ import useLocalStorage from 'react-use-localstorage';
 import shortid from 'shortid';
 import Fuse from 'fuse.js';
 import type { IAPIInfo, IConfig } from '../libs/types'
+import { AuthProvider } from './AuthContext';
 
 
 export default function App() {
@@ -151,7 +152,7 @@ export default function App() {
         generateDocs(url)
     }
     return (
-        <>
+        <AuthProvider config={config} host={host}>
             <div className="sticky top-0 z-50 bg-gray-400">
                 <TopNav handleChangeSettings={handleChangeSettings} handleSearch={handleSearch} />
                 {sendingRequest && (
@@ -190,6 +191,6 @@ export default function App() {
                     ))}
                 </div>
             </div>
-        </>
+        </AuthProvider>
     );
 }

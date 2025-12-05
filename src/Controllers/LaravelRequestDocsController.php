@@ -139,6 +139,7 @@ class LaravelRequestDocsController extends Controller
         $config = [
             'title'           => config('request-docs.title'),
             'default_headers' => config('request-docs.default_headers'),
+            'auto_login'      => config('request-docs.auto_login'),
         ];
         return response()->json($config);
     }

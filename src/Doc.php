@@ -91,6 +91,11 @@ class Doc implements Arrayable
     private int $groupIndex;
 
     /**
+     * Whether this route requires authentication.
+     */
+    private bool $requiresAuth;
+
+    /**
      * @param  string[]  $methods
      * @param  string[]  $middlewares
      * @param  array<string, string[]>  $pathParameters
@@ -118,7 +123,8 @@ class Doc implements Arrayable
         $this->pathParameters     = $pathParameters;
         $this->rules              = $rules;
         $this->docBlock           = $docBlock;
-        $this->responses          = [];
+        $this->responses           = [];
+        $this->requiresAuth       = false;
     }
 
     public function getUri(): string
@@ -289,6 +295,16 @@ class Doc implements Arrayable
         return $this->pathParameters;
     }
 
+    public function getRequiresAuth(): bool
+    {
+        return $this->requiresAuth;
+    }
+
+    public function setRequiresAuth(bool $requiresAuth): void
+    {
+        $this->requiresAuth = $requiresAuth;
+    }
+
     public function clone(): self
     {
         return clone $this;
@@ -310,6 +326,7 @@ class Doc implements Arrayable
             'rules'                => $this->rules,
             'doc_block'            => $this->docBlock,
             'responses'            => $this->responses,
+            'requires_auth'        => $this->requiresAuth,
         ];
 
         if (isset($this->group)) {

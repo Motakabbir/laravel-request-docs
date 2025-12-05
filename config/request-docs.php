@@ -60,6 +60,31 @@ return [
         ]
     ],
 
+    // Authentication detection patterns
+    // Routes with these middleware patterns will be marked as requiring authentication
+    'auth_middleware_patterns' => [
+        'auth',
+        'auth:api',
+        'auth:sanctum',
+        'auth:web',
+        'sanctum',
+        'passport',
+    ],
+
+    // Auto-login configuration for testing authenticated endpoints
+    'auto_login' => [
+        'enabled' => env('LRD_AUTO_LOGIN_ENABLED', false),
+        'endpoint' => env('LRD_LOGIN_ENDPOINT', '/api/login'),
+        'method' => env('LRD_LOGIN_METHOD', 'POST'),
+        'credentials_fields' => [
+            'email' => env('LRD_ADMIN_EMAIL', 'admin@example.com'),
+            'password' => env('LRD_ADMIN_PASSWORD', 'password'),
+        ],
+        'token_response_path' => env('LRD_TOKEN_PATH', 'token'), // or 'access_token'
+        'token_type' => env('LRD_TOKEN_TYPE', 'Bearer'), // Bearer, or empty for direct token
+    ],
+
+
     // No need to touch below
     // open api config
     // used to generate open api json

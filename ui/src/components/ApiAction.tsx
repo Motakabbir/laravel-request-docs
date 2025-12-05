@@ -1,10 +1,10 @@
 // noinspection t
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
 import useLocalStorage from 'react-use-localstorage';
-import {makeCurlCommand} from '../libs/strings'
-import type {IAPIInfo, IConfig, LRDResponse} from '../libs/types'
+import { makeCurlCommand } from '../libs/strings'
+import type { IAPIInfo, IConfig, LRDResponse } from '../libs/types'
 import ApiActionResponse from './elements/ApiActionResponse'
 import ApiActionRequest from './elements/ApiActionRequest'
 import ApiActionTabs from './elements/ApiActionTabs'
@@ -12,7 +12,8 @@ import ApiActionInfo from './elements/ApiActionInfo'
 import ApiActionSQL from './elements/ApiActionSQL'
 import ApiActionLog from './elements/ApiActionLog'
 import ApiActionEvents from './elements/ApiActionEvents'
-import {objectToFormData} from '../libs/object';
+import { objectToFormData } from '../libs/object';
+import { useAuth } from './AuthContext';
 
 interface Props {
     lrdDocsItem: IAPIInfo,
@@ -22,6 +23,7 @@ interface Props {
 }
 export default function ApiAction(props: Props) {
     const { lrdDocsItem, method, host, config } = props
+    const { authState, autoLogin } = useAuth();
     const [error, setError] = useState<string | null>(null);
 
     const [allParamsRegistry, setAllParamsRegistery] = useLocalStorage('allParamsRegistry', "{}");
@@ -79,8 +81,19 @@ export default function ApiAction(props: Props) {
         setAllParamsRegistery(JSON.stringify(jsonAllParamsRegistry))
     }
 
-    const handleSendRequest = () => {
+    const handleSendRequest = async () => {
         updateLocalStorage()
+
+        // Check if endpoint requires auth
+        if (lrdDocsItem.requires_auth && !authState.isAuthenticated) {
+            // Attempt auto-login
+            const loginSuccess = await autoLogin();
+            if (!loginSuccess) {
+                setError("🔒 Authentication required. Please configure credentials in Settings (⚙️ icon in top nav).");
+                return;
+            }
+        }
+
         try {
             JSON.parse(requestHeaders)
         } catch (error: any) {
@@ -88,6 +101,12 @@ export default function ApiAction(props: Props) {
             return
         }
         const headers = JSON.parse(requestHeaders)
+
+        // Add auth token if authenticated
+        if (authState.isAuthenticated && authState.token) {
+            headers['Authorization'] = `${authState.tokenType} ${authState.token}`;
+        }
+
         headers['X-Request-LRD'] = true
         if (fileParams) {
             delete headers['Content-Type']
