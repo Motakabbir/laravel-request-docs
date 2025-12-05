@@ -20,6 +20,31 @@ export interface IConfig {
     auto_login?: IAutoLoginConfig;
 }
 
+export interface IResponseSchema {
+    status_code: number;
+    description: string;
+    schema: object;
+    examples?: Record<string, any>;
+}
+
+export interface IRequestExample {
+    name: string;
+    summary?: string;
+    value: object;
+}
+
+export interface IErrorSchema {
+    status_code: number;
+    description: string;
+    schema: object;
+}
+
+export interface IEnumValue {
+    field: string;
+    values: string[];
+    description?: string;
+}
+
 export interface IAPIInfo {
     uri: string;
     middlewares: string[];
@@ -34,6 +59,12 @@ export interface IAPIInfo {
     group_index: number;
     responses: string[];
     requires_auth?: boolean;
+    response_schemas?: IResponseSchema[];
+    request_examples?: Record<string, IRequestExample>;
+    error_schemas?: IErrorSchema[];
+    enum_values?: Record<string, IEnumValue>;
+    is_deprecated?: boolean;
+    deprecation_message?: string;
 }
 
 export interface IAuthState {

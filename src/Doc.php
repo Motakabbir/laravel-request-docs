@@ -96,6 +96,44 @@ class Doc implements Arrayable
     private bool $requiresAuth;
 
     /**
+     * Response schemas by status code.
+     *
+     * @var array<int, array{status_code: int, description: string, schema: array}>
+     */
+    private array $responseSchemas;
+
+    /**
+     * Request examples.
+     *
+     * @var array<string, array{name: string, value: array}>
+     */
+    private array $requestExamples;
+
+    /**
+     * Error response schemas.
+     *
+     * @var array<int, array{status_code: int, description: string, schema: array}>
+     */
+    private array $errorSchemas;
+
+    /**
+     * Enum values for fields.
+     *
+     * @var array<string, array{field: string, values: array<string>, description?: string}>
+     */
+    private array $enumValues;
+
+    /**
+     * Whether this route is deprecated.
+     */
+    private bool $isDeprecated;
+
+    /**
+     * Deprecation message.
+     */
+    private string $deprecationMessage;
+
+    /**
      * @param  string[]  $methods
      * @param  string[]  $middlewares
      * @param  array<string, string[]>  $pathParameters
@@ -113,18 +151,24 @@ class Doc implements Arrayable
         array $rules,
         string $docBlock
     ) {
-        $this->uri                = $uri;
-        $this->methods            = $methods;
-        $this->middlewares        = $middlewares;
-        $this->controller         = $controller;
+        $this->uri = $uri;
+        $this->methods = $methods;
+        $this->middlewares = $middlewares;
+        $this->controller = $controller;
         $this->controllerFullPath = $controllerFullPath;
-        $this->method             = $method;
-        $this->httpMethod         = $httpMethod;
-        $this->pathParameters     = $pathParameters;
-        $this->rules              = $rules;
-        $this->docBlock           = $docBlock;
-        $this->responses           = [];
-        $this->requiresAuth       = false;
+        $this->method = $method;
+        $this->httpMethod = $httpMethod;
+        $this->pathParameters = $pathParameters;
+        $this->rules = $rules;
+        $this->docBlock = $docBlock;
+        $this->responses = [];
+        $this->requiresAuth = false;
+        $this->responseSchemas = [];
+        $this->requestExamples = [];
+        $this->errorSchemas = [];
+        $this->enumValues = [];
+        $this->isDeprecated = false;
+        $this->deprecationMessage = '';
     }
 
     public function getUri(): string
@@ -316,17 +360,23 @@ class Doc implements Arrayable
     public function toArray(): array
     {
         $result = [
-            'uri'                  => $this->uri,
-            'middlewares'          => $this->middlewares,
-            'controller'           => $this->controller,
+            'uri' => $this->uri,
+            'middlewares' => $this->middlewares,
+            'controller' => $this->controller,
             'controller_full_path' => $this->controllerFullPath,
-            'method'               => $this->method,
-            'http_method'          => $this->httpMethod,
-            'path_parameters'      => $this->pathParameters,
-            'rules'                => $this->rules,
-            'doc_block'            => $this->docBlock,
-            'responses'            => $this->responses,
-            'requires_auth'        => $this->requiresAuth,
+            'method' => $this->method,
+            'http_method' => $this->httpMethod,
+            'path_parameters' => $this->pathParameters,
+            'rules' => $this->rules,
+            'doc_block' => $this->docBlock,
+            'responses' => $this->responses,
+            'requires_auth' => $this->requiresAuth,
+            'response_schemas'     => $this->responseSchemas,
+            'request_examples'     => $this->requestExamples,
+            'error_schemas'        => $this->errorSchemas,
+            'enum_values'          => $this->enumValues,
+            'is_deprecated'        => $this->isDeprecated,
+            'deprecation_message'  => $this->deprecationMessage,
         ];
 
         if (isset($this->group)) {
@@ -338,5 +388,90 @@ class Doc implements Arrayable
         }
 
         return $result;
+    }
+
+
+    /**
+     * @return array<int, array{status_code: int, description: string, schema: array}>
+     */
+    public function getResponseSchemas(): array
+    {
+        return $this->responseSchemas;
+    }
+
+    /**
+     * @param  array<int, array{status_code: int, description: string, schema: array}>  $responseSchemas
+     */
+    public function setResponseSchemas(array $responseSchemas): void
+    {
+        $this->responseSchemas = $responseSchemas;
+    }
+
+    /**
+     * @return array<string, array{name: string, value: array}>
+     */
+    public function getRequestExamples(): array
+    {
+        return $this->requestExamples;
+    }
+
+    /**
+     * @param  array<string, array{name: string, value: array}>  $requestExamples
+     */
+    public function setRequestExamples(array $requestExamples): void
+    {
+        $this->requestExamples = $requestExamples;
+    }
+
+    /**
+     * @return array<int, array{status_code: int, description: string, schema: array}>
+     */
+    public function getErrorSchemas(): array
+    {
+        return $this->errorSchemas;
+    }
+
+    /**
+     * @param  array<int, array{status_code: int, description: string, schema: array}>  $errorSchemas
+     */
+    public function setErrorSchemas(array $errorSchemas): void
+    {
+        $this->errorSchemas = $errorSchemas;
+    }
+
+    /**
+     * @return array<string, array{field: string, values: array<string>, description?: string}>
+     */
+    public function getEnumValues(): array
+    {
+        return $this->enumValues;
+    }
+
+    /**
+     * @param  array<string, array{field: string, values: array<string>, description?: string}>  $enumValues
+     */
+    public function setEnumValues(array $enumValues): void
+    {
+        $this->enumValues = $enumValues;
+    }
+
+    public function getIsDeprecated(): bool
+    {
+        return $this->isDeprecated;
+    }
+
+    public function setIsDeprecated(bool $isDeprecated): void
+    {
+        $this->isDeprecated = $isDeprecated;
+    }
+
+    public function getDeprecationMessage(): string
+    {
+        return $this->deprecationMessage;
+    }
+
+    public function setDeprecationMessage(string $deprecationMessage): void
+    {
+        $this->deprecationMessage = $deprecationMessage;
     }
 }

@@ -207,6 +207,9 @@ class LaravelRequestDocs
 
             $doc->setRequiresAuth($requiresAuth);
 
+            // Parse documentation annotations
+            $this->parseDocumentation($doc, $reflectionMethod);
+
             $docs->push($doc);
         }
 
@@ -602,3 +605,43 @@ class LaravelRequestDocs
         return false;
     }
 }
+
+    /**
+     * Parse documentation annotations from controller method
+     */
+    private function parseDocumentation(Doc $doc, \ReflectionMethod $method): void
+    {
+        $docBlock = $this->getDocComment($method);
+        $parser = new DocBlockParser();
+        
+        // Parse response schemas
+        $responseSchemas = $parser->parseResponseSchemas($docBlock);
+        if (!empty($responseSchemas)) {
+            $doc->setResponseSchemas($responseSchemas);
+        }
+        
+        // Parse request examples
+        $examples = $parser->parseExamples($docBlock);
+        if (!empty($examples)) {
+            $doc->setRequestExamples($examples);
+        }
+        
+        // Parse error schemas
+        $errorSchemas = $parser->parseErrorSchemas($docBlock);
+        if (!empty($errorSchemas)) {
+            $doc->setErrorSchemas($errorSchemas);
+        }
+        
+        // Parse enums
+        $enums = $parser->parseEnums($docBlock);
+        if (!empty($enums)) {
+            $doc->setEnumValues($enums);
+        }
+        
+        // Parse deprecation
+        $deprecation = $parser->parseDeprecation($docBlock);
+        if ($deprecation) {
+            $doc->setIsDeprecated(true);
+            $doc->setDeprecationMessage($deprecation['message']);
+        }
+    }

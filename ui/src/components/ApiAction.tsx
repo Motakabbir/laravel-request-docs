@@ -14,6 +14,8 @@ import ApiActionLog from './elements/ApiActionLog'
 import ApiActionEvents from './elements/ApiActionEvents'
 import { objectToFormData } from '../libs/object';
 import { useAuth } from './AuthContext';
+import RequestExampleSelector from './RequestExampleSelector';
+import CodeSnippetViewer from './CodeSnippetViewer';
 
 interface Props {
     lrdDocsItem: IAPIInfo,
@@ -321,6 +323,14 @@ export default function ApiAction(props: Props) {
                 {activeTab == 'info' && (
                     <ApiActionInfo lrdDocsItem={lrdDocsItem} curlCommand={curlCommand} />
                 )}
+                {/* Example Selector */}
+                {lrdDocsItem.request_examples && Object.keys(lrdDocsItem.request_examples).length > 0 && (
+                    <RequestExampleSelector 
+                        examples={lrdDocsItem.request_examples}
+                        onSelectExample={(example) => setBodyParams(JSON.stringify(example, null, 2))}
+                    />
+                )}
+
                 {activeTab == 'request' && (
                     <ApiActionRequest
                         lrdDocsItem={lrdDocsItem}
@@ -359,6 +369,9 @@ export default function ApiAction(props: Props) {
                     <ApiActionEvents modelsData={modelsData} />
                 )}
             </div>
+
+                {/* Code Snippets */}
+                <CodeSnippetViewer lrdDocsItem={lrdDocsItem} host={host} />
         </>
     );
 }
